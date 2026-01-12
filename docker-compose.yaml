@@ -1,6 +1,8 @@
 services:
   directus:
     image: "directus/directus:11"
+    networks:
+      - coolify
     ports:
       - "8055:8055"
     restart: unless-stopped
@@ -18,3 +20,6 @@ services:
       - PUBLIC_URL
       - ADMIN_EMAIL
       - ADMIN_PASSWORD
+networks:
+  coolify:
+    external: true
