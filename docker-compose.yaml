@@ -1,0 +1,20 @@
+services:
+  directus:
+    image: "directus/directus:11"
+    ports:
+      - "8055:8055"
+    restart: unless-stopped
+    volumes:
+      - ${HOST_UPLOADS_PATH}:/directus/uploads
+      - ./extensions:/directus/extensions
+    environment:
+      - SECRET
+      - DB_CLIENT
+      - DB_HOST
+      - DB_PORT
+      - DB_DATABASE
+      - DB_USER
+      - DB_PASSWORD
+      - PUBLIC_URL
+      - ADMIN_EMAIL
+      - ADMIN_PASSWORD
