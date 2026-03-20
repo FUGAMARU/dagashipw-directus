@@ -22,8 +22,7 @@
     "build": "directus-extension build",
     "dev": "directus-extension build -w --no-minify",
     "link": "directus-extension link",
-    "validate": "directus-extension validate",
-    "sync": "npm run build && rm -rf ../extensions/calculated-api && mkdir -p ../extensions/calculated-api && cp -r dist package.json ../extensions/calculated-api/"
+    "validate": "directus-extension validate"
   },
   "devDependencies": {
     "@directus/extensions-sdk": "17.0.11",
