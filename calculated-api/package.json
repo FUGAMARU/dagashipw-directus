@@ -1,6 +1,6 @@
 {
-  "name": "custom-api",
-  "description": "Please enter a description for your extension",
+  "name": "calculated-api",
+  "description": "麩菓子の雑記帳のBFF",
   "icon": "extension",
   "version": "1.0.0",
   "keywords": [
@@ -23,7 +23,7 @@
     "dev": "directus-extension build -w --no-minify",
     "link": "directus-extension link",
     "validate": "directus-extension validate",
-    "sync": "npm run build && rm -rf ../extensions/endpoints/custom-api && mkdir -p ../extensions/endpoints/custom-api && cp -r dist package.json ../extensions/endpoints/custom-api/"
+    "sync": "npm run build && rm -rf ../extensions/calculated-api && mkdir -p ../extensions/calculated-api && cp -r dist package.json ../extensions/calculated-api/"
   },
   "devDependencies": {
     "@directus/extensions-sdk": "17.0.11",

@@ -1,6 +1,15 @@
 services:
+  # calculated-apiのビルダー
+  builder:
+    image: node:22-alpine
+    working_dir: /workspace/calculated-api
+    volumes:
+      - ./calculated-api:/workspace/calculated-api
+      - extensions_vol:/workspace/extensions
+    command: sh -c "npm install && npm run sync"
+  # Directus本体
   directus:
-    build: .
+    image: "directus/directus:11"
     networks:
       - coolify
     ports:
@@ -8,6 +17,7 @@ services:
     restart: unless-stopped
     volumes:
       - ${HOST_UPLOADS_PATH}:/directus/uploads
+      - extensions_vol:/directus/extensions
     environment:
       - SECRET
       - DB_CLIENT
@@ -19,6 +29,11 @@ services:
       - PUBLIC_URL
       - ADMIN_EMAIL
       - ADMIN_PASSWORD
+    depends_on:
+      builder:
+        condition: service_completed_successfully
+volumes:
+  extensions_vol:
 networks:
   coolify:
     external: true
