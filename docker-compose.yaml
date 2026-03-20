@@ -1,6 +1,6 @@
 services:
   directus:
-    image: "directus/directus:11"
+    build: .
     networks:
       - coolify
     ports:
@@ -8,7 +8,6 @@ services:
     restart: unless-stopped
     volumes:
       - ${HOST_UPLOADS_PATH}:/directus/uploads
-      - ./extensions:/directus/extensions
     environment:
       - SECRET
       - DB_CLIENT
