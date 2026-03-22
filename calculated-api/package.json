@@ -1,32 +1,35 @@
 {
   "name": "calculated-api",
-  "description": "麩菓子の雑記帳のBFF",
-  "icon": "extension",
   "version": "1.0.0",
+  "description": "麩菓子の雑記帳のBFF",
   "keywords": [
     "directus",
     "directus-extension",
     "directus-extension-endpoint"
   ],
-  "type": "module",
+  "license": "MIT",
   "files": [
     "dist"
   ],
+  "type": "module",
+  "scripts": {
+    "build": "directus-extension build",
+    "dev": "directus-extension build -w --no-minify",
+    "link": "directus-extension link",
+    "validate": "directus-extension validate",
+    "oxfmt": "oxfmt"
+  },
+  "devDependencies": {
+    "@directus/extensions-sdk": "17.0.11",
+    "@types/node": "^25.5.0",
+    "oxfmt": "^0.41.0",
+    "typescript": "^5.9.3"
+  },
+  "icon": "extension",
   "directus:extension": {
     "type": "endpoint",
     "path": "dist/index.js",
     "source": "src/index.ts",
     "host": "^10.10.0"
-  },
-  "scripts": {
-    "build": "directus-extension build",
-    "dev": "directus-extension build -w --no-minify",
-    "link": "directus-extension link",
-    "validate": "directus-extension validate"
-  },
-  "devDependencies": {
-    "@directus/extensions-sdk": "17.0.11",
-    "@types/node": "^25.5.0",
-    "typescript": "^5.9.3"
   }
 }
