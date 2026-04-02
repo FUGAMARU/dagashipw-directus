@@ -38,7 +38,7 @@ export const ANONYMOUS_USER_NAME = "匿名ユーザー"
 // ============================================================
 
 /** DirectusのURL */
-export const DIRECTUS_URL = "https://directus.dagashi.pw"
+export const DIRECTUS_URL = process.env.PUBLIC_URL
 
 // ============================================================
 // エラーメッセージ
