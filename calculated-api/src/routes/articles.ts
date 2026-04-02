@@ -2,6 +2,8 @@ import {
   DEFAULT_RELATED_LIMIT,
   ERROR_ARTICLE_NOT_FOUND,
   ERROR_ARTICLE_URL_ID_REQUIRED,
+  ERROR_KEYWORD_REQUIRED,
+  ERROR_TAG_REQUIRED,
   MAX_ARTICLE_FETCH_LIMIT,
   MAX_RELATED_LIMIT
 } from "../constants"
@@ -79,6 +81,88 @@ export const registerArticleRoutes = (router: any, database: EndpointContext["da
     const pageCount = Math.max(1, Math.ceil(total / pageSize))
 
     const data = await Promise.all(rows.map(row => toCalculatedArticle(database, row, req)))
+
+    res.json({
+      data,
+      meta: { pagination: { page, pageSize, pageCount, total } }
+    })
+  })
+
+  // 記事キーワード検索（タイトル・本文）
+  router.get(
+    "/articles/search/keyword",
+    async (req: RequestWithAccountability, res: ResponseLike) => {
+      if (!ensureAuthenticated(req, res)) return
+
+      const keyword = typeof req.query.keyword === "string" ? req.query.keyword.trim() : ""
+      if (isBlank(keyword)) {
+        sendError(res, 400, ERROR_KEYWORD_REQUIRED)
+        return
+      }
+
+      const { page, pageSize } = parsePagination(req.query)
+      const offset = (page - 1) * pageSize
+      const likeValue = `%${keyword.toLowerCase()}%`
+
+      const rows = (await isPublishedFilter(database.from("articles"))
+        .where((builder: any) => {
+          builder
+            .whereRaw("LOWER(title) LIKE ?", [likeValue])
+            .orWhereRaw("LOWER(body) LIKE ?", [likeValue])
+        })
+        .orderBy("force_created_at", "desc")
+        .offset(offset)
+        .limit(pageSize)) as ArticleRow[]
+
+      const totalResult = await isPublishedFilter(database.from("articles"))
+        .where((builder: any) => {
+          builder
+            .whereRaw("LOWER(title) LIKE ?", [likeValue])
+            .orWhereRaw("LOWER(body) LIKE ?", [likeValue])
+        })
+        .count("article_url_id as count")
+
+      const total = Number(totalResult[0]?.count ?? 0)
+      const pageCount = Math.max(1, Math.ceil(total / pageSize))
+
+      const data = await Promise.all(rows.map(row => toCalculatedArticle(database, row, req)))
+
+      res.json({
+        data,
+        meta: { pagination: { page, pageSize, pageCount, total } }
+      })
+    }
+  )
+
+  // 記事タグ検索（全件取得後にアプリケーション層で絞り込み）
+  router.get("/articles/search/tag", async (req: RequestWithAccountability, res: ResponseLike) => {
+    if (!ensureAuthenticated(req, res)) return
+
+    const tag = typeof req.query.tag === "string" ? req.query.tag.trim() : ""
+    if (isBlank(tag)) {
+      sendError(res, 400, ERROR_TAG_REQUIRED)
+      return
+    }
+
+    const { page, pageSize } = parsePagination(req.query)
+    const lowerTag = tag.toLowerCase()
+
+    const allRows = (await isPublishedFilter(database.from("articles"))
+      .orderBy("force_created_at", "desc")
+      .limit(MAX_ARTICLE_FETCH_LIMIT)) as ArticleRow[]
+
+    const filteredRows = allRows.filter(row =>
+      parseTags(row.tags)
+        .map(t => t.toLowerCase())
+        .includes(lowerTag)
+    )
+
+    const total = filteredRows.length
+    const pageCount = Math.max(1, Math.ceil(total / pageSize))
+    const offset = (page - 1) * pageSize
+    const pagedRows = filteredRows.slice(offset, offset + pageSize)
+
+    const data = await Promise.all(pagedRows.map(row => toCalculatedArticle(database, row, req)))
 
     res.json({
       data,

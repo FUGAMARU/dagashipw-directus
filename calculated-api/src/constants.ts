@@ -50,5 +50,11 @@ export const ERROR_AUTH_REQUIRED = "認証が必要です"
 /** 記事URLのID未指定エラー */
 export const ERROR_ARTICLE_URL_ID_REQUIRED = "記事URLのIDは必須です"
 
+/** キーワード未指定エラー */
+export const ERROR_KEYWORD_REQUIRED = "keywordクエリは必須です"
+
+/** タグ未指定エラー */
+export const ERROR_TAG_REQUIRED = "tagクエリは必須です"
+
 /** 記事が見つからないエラー */
 export const ERROR_ARTICLE_NOT_FOUND = "記事が見つかりません"
