@@ -139,7 +139,7 @@ export const toAssetUrl = (thumbnailId: string | null, req: RequestWithAccountab
   if (!thumbnailId) return ""
 
   const raw = DIRECTUS_URL
-  const publicUrl = raw.endsWith("/") ? raw.slice(0, -1) : raw
+  const publicUrl = raw?.endsWith("/") ? raw.slice(0, -1) : raw
 
   const forwardedProto = req.headers["x-forwarded-proto"]
   const forwardedHost = req.headers["x-forwarded-host"]
