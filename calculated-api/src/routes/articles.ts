@@ -13,6 +13,7 @@ import {
   isBlank,
   isPublishedFilter,
   normalizeArticleUrlId,
+  parseIncludeDevArticle,
   parsePagination,
   parseTags,
   sendError,
@@ -27,8 +28,9 @@ export const registerArticleRoutes = (router: any, database: EndpointContext["da
     "/articles/all-article-url-id",
     async (req: RequestWithAccountability, res: ResponseLike) => {
       if (!ensureAuthenticated(req, res)) return
+      const includeDevelopmentArticle = parseIncludeDevArticle(req.query)
 
-      const rows = (await isPublishedFilter(database.from("articles"))
+      const rows = (await isPublishedFilter(database.from("articles"), includeDevelopmentArticle)
         .select("article_url_id")
         .orderBy("force_created_at", "desc")
         .limit(MAX_ARTICLE_FETCH_LIMIT)) as Array<Pick<ArticleRow, "article_url_id">>
@@ -42,6 +44,7 @@ export const registerArticleRoutes = (router: any, database: EndpointContext["da
     "/articles/calculated/:articleUrlId",
     async (req: RequestWithAccountability, res: ResponseLike) => {
       if (!ensureAuthenticated(req, res)) return
+      const includeDevelopmentArticle = parseIncludeDevArticle(req.query)
 
       const articleUrlId = normalizeArticleUrlId(req.params.articleUrlId)
       if (isBlank(articleUrlId)) {
@@ -49,7 +52,7 @@ export const registerArticleRoutes = (router: any, database: EndpointContext["da
         return
       }
 
-      const article = (await isPublishedFilter(database.from("articles"))
+      const article = (await isPublishedFilter(database.from("articles"), includeDevelopmentArticle)
         .where("article_url_id", articleUrlId)
         .first()) as ArticleRow | undefined
 
@@ -58,29 +61,33 @@ export const registerArticleRoutes = (router: any, database: EndpointContext["da
         return
       }
 
-      res.json(await toCalculatedArticle(database, article, req))
+      res.json(await toCalculatedArticle(database, article, req, includeDevelopmentArticle))
     }
   )
 
   // 記事一覧（ページネーション付き）
   router.get("/articles/calculated", async (req: RequestWithAccountability, res: ResponseLike) => {
     if (!ensureAuthenticated(req, res)) return
+    const includeDevelopmentArticle = parseIncludeDevArticle(req.query)
 
     const { page, pageSize } = parsePagination(req.query)
     const offset = (page - 1) * pageSize
 
-    const rows = (await isPublishedFilter(database.from("articles"))
+    const rows = (await isPublishedFilter(database.from("articles"), includeDevelopmentArticle)
       .orderBy("force_created_at", "desc")
       .offset(offset)
       .limit(pageSize)) as ArticleRow[]
 
-    const totalResult = await isPublishedFilter(database.from("articles")).count(
-      "article_url_id as count"
-    )
+    const totalResult = await isPublishedFilter(
+      database.from("articles"),
+      includeDevelopmentArticle
+    ).count("article_url_id as count")
     const total = Number(totalResult[0]?.count ?? 0)
     const pageCount = Math.max(1, Math.ceil(total / pageSize))
 
-    const data = await Promise.all(rows.map(row => toCalculatedArticle(database, row, req)))
+    const data = await Promise.all(
+      rows.map(row => toCalculatedArticle(database, row, req, includeDevelopmentArticle))
+    )
 
     res.json({
       data,
@@ -93,6 +100,7 @@ export const registerArticleRoutes = (router: any, database: EndpointContext["da
     "/articles/search/keyword",
     async (req: RequestWithAccountability, res: ResponseLike) => {
       if (!ensureAuthenticated(req, res)) return
+      const includeDevelopmentArticle = parseIncludeDevArticle(req.query)
 
       const keyword = typeof req.query.keyword === "string" ? req.query.keyword.trim() : ""
       if (isBlank(keyword)) {
@@ -104,7 +112,7 @@ export const registerArticleRoutes = (router: any, database: EndpointContext["da
       const offset = (page - 1) * pageSize
       const likeValue = `%${keyword.toLowerCase()}%`
 
-      const rows = (await isPublishedFilter(database.from("articles"))
+      const rows = (await isPublishedFilter(database.from("articles"), includeDevelopmentArticle)
         .where((builder: any) => {
           builder
             .whereRaw("LOWER(title) LIKE ?", [likeValue])
@@ -114,7 +122,10 @@ export const registerArticleRoutes = (router: any, database: EndpointContext["da
         .offset(offset)
         .limit(pageSize)) as ArticleRow[]
 
-      const totalResult = await isPublishedFilter(database.from("articles"))
+      const totalResult = await isPublishedFilter(
+        database.from("articles"),
+        includeDevelopmentArticle
+      )
         .where((builder: any) => {
           builder
             .whereRaw("LOWER(title) LIKE ?", [likeValue])
@@ -125,7 +136,9 @@ export const registerArticleRoutes = (router: any, database: EndpointContext["da
       const total = Number(totalResult[0]?.count ?? 0)
       const pageCount = Math.max(1, Math.ceil(total / pageSize))
 
-      const data = await Promise.all(rows.map(row => toCalculatedArticle(database, row, req)))
+      const data = await Promise.all(
+        rows.map(row => toCalculatedArticle(database, row, req, includeDevelopmentArticle))
+      )
 
       res.json({
         data,
@@ -137,6 +150,7 @@ export const registerArticleRoutes = (router: any, database: EndpointContext["da
   // 記事タグ検索（全件取得後にアプリケーション層で絞り込み）
   router.get("/articles/search/tag", async (req: RequestWithAccountability, res: ResponseLike) => {
     if (!ensureAuthenticated(req, res)) return
+    const includeDevelopmentArticle = parseIncludeDevArticle(req.query)
 
     const tag = typeof req.query.tag === "string" ? req.query.tag.trim() : ""
     if (isBlank(tag)) {
@@ -147,7 +161,7 @@ export const registerArticleRoutes = (router: any, database: EndpointContext["da
     const { page, pageSize } = parsePagination(req.query)
     const lowerTag = tag.toLowerCase()
 
-    const allRows = (await isPublishedFilter(database.from("articles"))
+    const allRows = (await isPublishedFilter(database.from("articles"), includeDevelopmentArticle)
       .orderBy("force_created_at", "desc")
       .limit(MAX_ARTICLE_FETCH_LIMIT)) as ArticleRow[]
 
@@ -162,7 +176,9 @@ export const registerArticleRoutes = (router: any, database: EndpointContext["da
     const offset = (page - 1) * pageSize
     const pagedRows = filteredRows.slice(offset, offset + pageSize)
 
-    const data = await Promise.all(pagedRows.map(row => toCalculatedArticle(database, row, req)))
+    const data = await Promise.all(
+      pagedRows.map(row => toCalculatedArticle(database, row, req, includeDevelopmentArticle))
+    )
 
     res.json({
       data,
@@ -175,6 +191,7 @@ export const registerArticleRoutes = (router: any, database: EndpointContext["da
     "/articles/calculated/:articleUrlId/related",
     async (req: RequestWithAccountability, res: ResponseLike) => {
       if (!ensureAuthenticated(req, res)) return
+      const includeDevelopmentArticle = parseIncludeDevArticle(req.query)
 
       const articleUrlId = normalizeArticleUrlId(req.params.articleUrlId)
       if (isBlank(articleUrlId)) {
@@ -187,7 +204,10 @@ export const registerArticleRoutes = (router: any, database: EndpointContext["da
         MAX_RELATED_LIMIT
       )
 
-      const currentArticle = (await isPublishedFilter(database.from("articles"))
+      const currentArticle = (await isPublishedFilter(
+        database.from("articles"),
+        includeDevelopmentArticle
+      )
         .select("article_url_id", "tags")
         .where("article_url_id", articleUrlId)
         .first()) as Pick<ArticleRow, "article_url_id" | "tags"> | undefined
@@ -204,10 +224,10 @@ export const registerArticleRoutes = (router: any, database: EndpointContext["da
       }
 
       // 全公開記事のタグ情報を取得
-      const allArticles = (await isPublishedFilter(database.from("articles")).select(
-        "article_url_id",
-        "tags"
-      )) as Array<Pick<ArticleRow, "article_url_id" | "tags">>
+      const allArticles = (await isPublishedFilter(
+        database.from("articles"),
+        includeDevelopmentArticle
+      ).select("article_url_id", "tags")) as Array<Pick<ArticleRow, "article_url_id" | "tags">>
 
       // タグの出現頻度を集計
       const tagFrequencies: Record<string, number> = {}
@@ -251,16 +271,18 @@ export const registerArticleRoutes = (router: any, database: EndpointContext["da
       }
 
       // 選出順を維持して記事詳細を取得
-      const relatedRows = (await isPublishedFilter(database.from("articles")).whereIn(
-        "article_url_id",
-        recommendations
-      )) as ArticleRow[]
+      const relatedRows = (await isPublishedFilter(
+        database.from("articles"),
+        includeDevelopmentArticle
+      ).whereIn("article_url_id", recommendations)) as ArticleRow[]
 
       const sortedRows = recommendations
         .map(id => relatedRows.find(row => row.article_url_id === id))
         .filter((row): row is ArticleRow => Boolean(row))
 
-      const data = await Promise.all(sortedRows.map(row => toCalculatedArticle(database, row, req)))
+      const data = await Promise.all(
+        sortedRows.map(row => toCalculatedArticle(database, row, req, includeDevelopmentArticle))
+      )
 
       res.json({ data })
     }

@@ -2,8 +2,8 @@ import {
   BODY_SUMMARY_MAX_LENGTH,
   DIRECTUS_URL,
   DEFAULT_PAGE_SIZE,
+  DEVELOPMENT_ARTICLE_URL_ID,
   ERROR_AUTH_REQUIRED,
-  EXCLUDED_ARTICLE_ID,
   MAX_PAGE_SIZE
 } from "./constants"
 import type {
@@ -105,11 +105,17 @@ export const ensureAuthenticated = (req: RequestWithAccountability, res: Respons
 // DB
 // ============================================================
 
-/** 公開記事のみに絞り込むWHERE句を付与する */
-export const isPublishedFilter = (query: any) =>
-  query.where((builder: any) => {
-    builder.where("is_unpublished", false).orWhereNull("is_unpublished")
-  })
+/** 公開記事のみに絞り込み、必要に応じて開発用article_url_idを除外する */
+export const isPublishedFilter = (query: any, includeDevelopmentArticle = false) =>
+  query
+    .where((builder: any) => {
+      builder.where("is_unpublished", false).orWhereNull("is_unpublished")
+    })
+    .modify((builder: any) => {
+      if (!includeDevelopmentArticle && !isBlank(DEVELOPMENT_ARTICLE_URL_ID)) {
+        builder.whereNot("article_url_id", DEVELOPMENT_ARTICLE_URL_ID)
+      }
+    })
 
 // ============================================================
 // クエリパース
@@ -129,6 +135,10 @@ export const parsePagination = (query: Record<string, unknown>): Pagination => {
 
   return { page, pageSize }
 }
+
+/** 開発用記事を含めるフラグ（include-dev-article）が付与されているか判定する */
+export const parseIncludeDevArticle = (query: Record<string, unknown>) =>
+  query["include-dev-article"] !== undefined
 
 // ============================================================
 // アセットURL
@@ -169,15 +179,13 @@ export const shuffleArray = <T>(array: T[]): T[] => {
 // 記事変換
 // ============================================================
 
-/** 対象記事より古い公開記事数 + 1 を返す。除外対象記事は0を返す */
+/** 対象記事より古い公開記事数 + 1 を返す */
 export const calculateBackNumber = async (
   database: EndpointContext["database"],
-  article: ArticleRow
+  article: ArticleRow,
+  includeDevelopmentArticle = false
 ) => {
-  if (article.article_url_id === EXCLUDED_ARTICLE_ID) return 0
-
-  const countResult = await isPublishedFilter(database.from("articles"))
-    .whereNot("article_url_id", EXCLUDED_ARTICLE_ID)
+  const countResult = await isPublishedFilter(database.from("articles"), includeDevelopmentArticle)
     .andWhere("force_created_at", "<", article.force_created_at)
     .count("article_url_id as count")
 
@@ -188,14 +196,15 @@ export const calculateBackNumber = async (
 export const toCalculatedArticle = async (
   database: EndpointContext["database"],
   article: ArticleRow,
-  req: RequestWithAccountability
+  req: RequestWithAccountability,
+  includeDevelopmentArticle = false
 ) => {
   const tags = parseTags(article.tags)
   const originalThumbnailUrl = toAssetUrl(article.thumbnail, req)
 
   return {
     articleUrlId: article.article_url_id,
-    backNumber: await calculateBackNumber(database, article),
+    backNumber: await calculateBackNumber(database, article, includeDevelopmentArticle),
     title: article.title,
     thumbnail: {
       normal: {

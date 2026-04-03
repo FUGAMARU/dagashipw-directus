@@ -19,6 +19,7 @@ services:
       - DB_USER
       - DB_PASSWORD
       - PUBLIC_URL
+      - DEVELOPMENT_ARTICLE_URL_ID
       - ADMIN_EMAIL
       - ADMIN_PASSWORD
 networks:

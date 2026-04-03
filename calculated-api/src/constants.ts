@@ -2,8 +2,8 @@
 // 記事
 // ============================================================
 
-/** backNumber計算から除外する記事のID */
-export const EXCLUDED_ARTICLE_ID = "development"
+/** 開発用記事のID */
+export const DEVELOPMENT_ARTICLE_URL_ID = process.env.DEVELOPMENT_ARTICLE_URL_ID
 
 /** 記事一覧のデフォルト1ページあたり件数 */
 export const DEFAULT_PAGE_SIZE = 10
