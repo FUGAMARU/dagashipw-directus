@@ -1,7 +1,10 @@
 # calculated-api
 
 麩菓子の雑記帳のBFF（Backend for Frontend）として動作するDirectus endpoint拡張。
+
 記事・コメントの計算済みデータを返すカスタムAPIを提供する。
+
+※このリポジトリのソースコードはほぼ全てAIが書いています。
 
 ## エンドポイント一覧
 
@@ -38,6 +41,12 @@
 | `pagination[pageSize]` / `pagination.pageSize` | number | 10         | 1ページあたり件数（最大100） |
 
 ソートは `force_created_at` 降順、同値時は `article_url_id` 昇順で固定。
+
+### BackNumber仕様
+
+- `backNumber` は公開記事集合における順位（古い記事数 + 1）として算出する。
+- 記事詳細・記事一覧・キーワード検索・タグ検索では、表示順と `backNumber` の整合を保証する。
+- 関連記事はタグ希少度とシャッフルを使ったレコメンド順で返すため、`backNumber` と表示順の整合対象外とする。
 
 ### 関連記事 (`/articles/calculated/:articleUrlId/related`)
 
