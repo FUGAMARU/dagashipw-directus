@@ -37,7 +37,7 @@
 | `pagination[page]` / `pagination.page`         | number | 1          | ページ番号                   |
 | `pagination[pageSize]` / `pagination.pageSize` | number | 10         | 1ページあたり件数（最大100） |
 
-ソートは `force_created_at` 降順で固定。
+ソートは `force_created_at` 降順、同値時は `article_url_id` 昇順で固定。
 
 ### 関連記事 (`/articles/calculated/:articleUrlId/related`)
 

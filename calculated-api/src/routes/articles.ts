@@ -33,6 +33,7 @@ export const registerArticleRoutes = (router: any, database: EndpointContext["da
       const rows = (await isPublishedFilter(database.from("articles"), includeDevelopmentArticle)
         .select("article_url_id")
         .orderBy("force_created_at", "desc")
+        .orderBy("article_url_id", "asc")
         .limit(MAX_ARTICLE_FETCH_LIMIT)) as Array<Pick<ArticleRow, "article_url_id">>
 
       res.json(rows.map(row => row.article_url_id))
@@ -75,6 +76,7 @@ export const registerArticleRoutes = (router: any, database: EndpointContext["da
 
     const rows = (await isPublishedFilter(database.from("articles"), includeDevelopmentArticle)
       .orderBy("force_created_at", "desc")
+      .orderBy("article_url_id", "asc")
       .offset(offset)
       .limit(pageSize)) as ArticleRow[]
 
@@ -119,6 +121,7 @@ export const registerArticleRoutes = (router: any, database: EndpointContext["da
             .orWhereRaw("LOWER(body) LIKE ?", [likeValue])
         })
         .orderBy("force_created_at", "desc")
+        .orderBy("article_url_id", "asc")
         .offset(offset)
         .limit(pageSize)) as ArticleRow[]
 
@@ -163,6 +166,7 @@ export const registerArticleRoutes = (router: any, database: EndpointContext["da
 
     const allRows = (await isPublishedFilter(database.from("articles"), includeDevelopmentArticle)
       .orderBy("force_created_at", "desc")
+      .orderBy("article_url_id", "asc")
       .limit(MAX_ARTICLE_FETCH_LIMIT)) as ArticleRow[]
 
     const filteredRows = allRows.filter(row =>

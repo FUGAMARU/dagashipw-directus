@@ -179,14 +179,22 @@ export const shuffleArray = <T>(array: T[]): T[] => {
 // 記事変換
 // ============================================================
 
-/** 対象記事より古い公開記事数 + 1 を返す */
+/** 対象記事より古い公開記事数 + 1 を返す（同一投稿日はarticle_url_idで順位を決める） */
 export const calculateBackNumber = async (
   database: EndpointContext["database"],
   article: ArticleRow,
   includeDevelopmentArticle = false
 ) => {
   const countResult = await isPublishedFilter(database.from("articles"), includeDevelopmentArticle)
-    .andWhere("force_created_at", "<", article.force_created_at)
+    .andWhere((builder: any) => {
+      builder
+        .where("force_created_at", "<", article.force_created_at)
+        .orWhere((sameCreatedAtBuilder: any) => {
+          sameCreatedAtBuilder
+            .where("force_created_at", "=", article.force_created_at)
+            .andWhere("article_url_id", "<", article.article_url_id)
+        })
+    })
     .count("article_url_id as count")
 
   return Number(countResult[0]?.count ?? 0) + 1
