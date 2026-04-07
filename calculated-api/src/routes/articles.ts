@@ -42,7 +42,7 @@ export const registerArticleRoutes = (router: any, database: EndpointContext["da
 
   // 記事詳細
   router.get(
-    "/articles/calculated/:articleUrlId",
+    "/articles/:articleUrlId",
     async (req: RequestWithAccountability, res: ResponseLike) => {
       if (!ensureAuthenticated(req, res)) return
       const includeDevelopmentArticle = parseIncludeDevArticle(req.query)
@@ -67,7 +67,7 @@ export const registerArticleRoutes = (router: any, database: EndpointContext["da
   )
 
   // 記事一覧（ページネーション付き）
-  router.get("/articles/calculated", async (req: RequestWithAccountability, res: ResponseLike) => {
+  router.get("/articles", async (req: RequestWithAccountability, res: ResponseLike) => {
     if (!ensureAuthenticated(req, res)) return
     const includeDevelopmentArticle = parseIncludeDevArticle(req.query)
 
@@ -192,7 +192,7 @@ export const registerArticleRoutes = (router: any, database: EndpointContext["da
 
   // 関連記事
   router.get(
-    "/articles/calculated/:articleUrlId/related",
+    "/articles/:articleUrlId/related",
     async (req: RequestWithAccountability, res: ResponseLike) => {
       if (!ensureAuthenticated(req, res)) return
       const includeDevelopmentArticle = parseIncludeDevArticle(req.query)

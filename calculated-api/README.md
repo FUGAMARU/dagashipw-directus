@@ -12,18 +12,18 @@
 
 ### 記事
 
-| メソッド | パス                                                        | 説明                                     |
-| -------- | ----------------------------------------------------------- | ---------------------------------------- |
-| GET      | `/calculated-api/articles/all-article-url-id`               | 公開記事の全 `articleUrlId` を配列で返す |
-| GET      | `/calculated-api/articles/calculated/:articleUrlId`         | 記事詳細（backNumber等の計算値付き）     |
-| GET      | `/calculated-api/articles/calculated`                       | 記事一覧（ページネーション付き）         |
-| GET      | `/calculated-api/articles/calculated/:articleUrlId/related` | 関連記事（タグの希少度ベース）           |
+| メソッド | パス                                             | 説明                                     |
+| -------- | ------------------------------------------------ | ---------------------------------------- |
+| GET      | `/calculated-api/articles/all-article-url-id`    | 公開記事の全 `articleUrlId` を配列で返す |
+| GET      | `/calculated-api/articles/:articleUrlId`         | 記事詳細（backNumber等の計算値付き）     |
+| GET      | `/calculated-api/articles`                       | 記事一覧（ページネーション付き）         |
+| GET      | `/calculated-api/articles/:articleUrlId/related` | 関連記事（タグの希少度ベース）           |
 
 ### コメント
 
-| メソッド | パス                                                | 説明                                       |
-| -------- | --------------------------------------------------- | ------------------------------------------ |
-| GET      | `/calculated-api/comments/calculated/:articleUrlId` | 指定記事のコメント一覧（親子階層構造付き） |
+| メソッド | パス                                     | 説明                                       |
+| -------- | ---------------------------------------- | ------------------------------------------ |
+| GET      | `/calculated-api/comments/:articleUrlId` | 指定記事のコメント一覧（親子階層構造付き） |
 
 ## クエリパラメータ
 
@@ -33,7 +33,7 @@
 | --------------------- | ------ | ---------- | -------------------------------------------------------------------- |
 | `include-dev-article` | string | -          | 指定時は `DEVELOPMENT_ARTICLE_URL_ID` の記事を除外せずレスポンスする |
 
-### 記事一覧 (`/articles/calculated`)
+### 記事一覧 (`/articles`)
 
 | パラメータ                                     | 型     | デフォルト | 説明                         |
 | ---------------------------------------------- | ------ | ---------- | ---------------------------- |
@@ -48,7 +48,7 @@
 - 記事詳細・記事一覧・キーワード検索・タグ検索では、表示順と `backNumber` の整合を保証する。
 - 関連記事はタグ希少度とシャッフルを使ったレコメンド順で返すため、`backNumber` と表示順の整合対象外とする。
 
-### 関連記事 (`/articles/calculated/:articleUrlId/related`)
+### 関連記事 (`/articles/:articleUrlId/related`)
 
 | パラメータ | 型     | デフォルト | 説明               |
 | ---------- | ------ | ---------- | ------------------ |

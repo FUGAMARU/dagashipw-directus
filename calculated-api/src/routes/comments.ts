@@ -15,7 +15,7 @@ import { ensureAuthenticated, isBlank, normalizeArticleUrlId, sendError } from "
 
 export const registerCommentRoutes = (router: any, database: EndpointContext["database"]) => {
   router.get(
-    "/comments/calculated/:articleUrlId",
+    "/comments/:articleUrlId",
     async (req: RequestWithAccountability, res: ResponseLike) => {
       if (!ensureAuthenticated(req, res)) return
 
