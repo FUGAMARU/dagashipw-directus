@@ -216,16 +216,16 @@ export const toCalculatedArticle = async (
     title: article.title,
     thumbnail: {
       normal: {
-        pc1x: originalThumbnailUrl,
-        pc2x: originalThumbnailUrl,
-        sp1x: originalThumbnailUrl,
-        sp2x: originalThumbnailUrl
+        pc1x: `${originalThumbnailUrl}?key=normal-pc`,
+        pc2x: `${originalThumbnailUrl}?key=normal-pc-2x`,
+        sp1x: `${originalThumbnailUrl}?key=normal-sp`,
+        sp2x: `${originalThumbnailUrl}?key=normal-sp-2x`
       },
       smaller: {
-        pc1x: originalThumbnailUrl,
-        pc2x: originalThumbnailUrl,
-        sp1x: originalThumbnailUrl,
-        sp2x: originalThumbnailUrl
+        pc1x: `${originalThumbnailUrl}?key=smaller-pc`,
+        pc2x: `${originalThumbnailUrl}?key=smaller-pc-2x`,
+        sp1x: `${originalThumbnailUrl}?key=smaller-sp`,
+        sp2x: `${originalThumbnailUrl}?key=smaller-sp-2x`
       }
     },
     originalThumbnailUrl,
