@@ -3,8 +3,6 @@ services:
     build: .
     networks:
       - coolify
-    ports:
-      - "8055:8055"
     restart: unless-stopped
     volumes:
       - type: bind
