@@ -45,10 +45,16 @@ export const stripMarkdown = (text: string) => {
   if (!text) return ""
   return text
     .replace(/^#+\s+/gm, "")
+    .replace(/\{\/\*[\s\S]*?\*\/\}/g, "")
+    .replace(/<!--[\s\S]*?-->/g, "")
     .replace(/(\*\*|__)(.*?)\1/g, "$2")
     .replace(/(\*|_)(.*?)\1/g, "$2")
     .replace(/!\[.*?\]\(.*?\)/g, "")
     .replace(/\[(.*?)\]\(.*?\)/g, "$1")
+    .replace(/<([A-Za-z][A-Za-z0-9:-]*)(\s[^<>]*?)?\/>/g, "")
+    .replace(/<([A-Za-z][A-Za-z0-9:-]*)(\s[^<>]*?)?>/g, "")
+    .replace(/<\/([A-Za-z][A-Za-z0-9:-]*)>/g, "")
+    .replace(/<\/?\s*>/g, "")
     .replace(/```[\s\S]*?```/g, "")
     .replace(/`([^`]+)`/g, "$1")
     .replace(/\n+/g, " ")

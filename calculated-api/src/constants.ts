@@ -21,7 +21,7 @@ export const MAX_RELATED_LIMIT = 20
 export const MAX_ARTICLE_FETCH_LIMIT = 10000
 
 /** 記事本文要約の最大文字数 */
-export const BODY_SUMMARY_MAX_LENGTH = 100
+export const BODY_SUMMARY_MAX_LENGTH = 200
 
 // ============================================================
 // コメント
