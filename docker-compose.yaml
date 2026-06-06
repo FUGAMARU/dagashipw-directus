@@ -20,6 +20,8 @@ services:
       - DEVELOPMENT_ARTICLE_URL_ID
       - ADMIN_EMAIL
       - ADMIN_PASSWORD
+      - SESSION_COOKIE_TTL
+      - REFRESH_TOKEN_TTL
 networks:
   coolify:
     external: true
