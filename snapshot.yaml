@@ -1,5 +1,5 @@
 version: 1
-directus: 11.14.0
+directus: 12.1.1
 vendor: mysql
 collections:
   - collection: articles
@@ -8,6 +8,7 @@ collections:
       archive_app_filter: true
       archive_field: null
       archive_value: null
+      autosave_revision_interval: null
       collapse: open
       collection: articles
       color: null
@@ -21,6 +22,7 @@ collections:
       singleton: false
       sort: null
       sort_field: null
+      status: active
       translations: null
       unarchive_value: null
       versioning: false
@@ -32,6 +34,7 @@ collections:
       archive_app_filter: true
       archive_field: null
       archive_value: null
+      autosave_revision_interval: null
       collapse: open
       collection: comments
       color: null
@@ -45,6 +48,7 @@ collections:
       singleton: false
       sort: null
       sort_field: null
+      status: active
       translations: null
       unarchive_value: null
       versioning: false
@@ -537,46 +541,6 @@ fields:
       foreign_key_table: null
       foreign_key_column: null
   - collection: comments
-    field: force_created_at
-    type: date
-    meta:
-      collection: comments
-      conditions: null
-      display: null
-      display_options: null
-      field: force_created_at
-      group: null
-      hidden: false
-      interface: datetime
-      note: null
-      options: null
-      readonly: false
-      required: true
-      searchable: true
-      sort: 5
-      special: null
-      translations: null
-      validation: null
-      validation_message: null
-      width: full
-    schema:
-      name: force_created_at
-      table: comments
-      data_type: date
-      default_value: null
-      max_length: null
-      numeric_precision: null
-      numeric_scale: null
-      is_nullable: true
-      is_unique: false
-      is_indexed: false
-      is_primary_key: false
-      is_generated: false
-      generation_expression: null
-      has_auto_increment: false
-      foreign_key_table: null
-      foreign_key_column: null
-  - collection: comments
     field: user_name
     type: string
     meta:
@@ -697,6 +661,46 @@ fields:
       has_auto_increment: false
       foreign_key_table: null
       foreign_key_column: null
+  - collection: comments
+    field: force_created_at
+    type: dateTime
+    meta:
+      collection: comments
+      conditions: null
+      display: null
+      display_options: null
+      field: force_created_at
+      group: null
+      hidden: false
+      interface: datetime
+      note: null
+      options: null
+      readonly: false
+      required: true
+      searchable: true
+      sort: 5
+      special: null
+      translations: null
+      validation: null
+      validation_message: null
+      width: full
+    schema:
+      name: force_created_at
+      table: comments
+      data_type: datetime
+      default_value: null
+      max_length: null
+      numeric_precision: null
+      numeric_scale: null
+      is_nullable: true
+      is_unique: false
+      is_indexed: false
+      is_primary_key: false
+      is_generated: false
+      generation_expression: null
+      has_auto_increment: false
+      foreign_key_table: null
+      foreign_key_column: null
 systemFields:
   - collection: directus_access
     field: policy
@@ -734,6 +738,22 @@ systemFields:
     field: user_created
     schema:
       is_indexed: true
+  - collection: directus_deployment_projects
+    field: user_created
+    schema:
+      is_indexed: true
+  - collection: directus_deployment_runs
+    field: project
+    schema:
+      is_indexed: true
+  - collection: directus_deployment_runs
+    field: user_created
+    schema:
+      is_indexed: true
+  - collection: directus_deployments
+    field: user_created
+    schema:
+      is_indexed: true
   - collection: directus_fields
     field: collection
     schema:
@@ -764,6 +784,50 @@ systemFields:
       is_indexed: true
   - collection: directus_notifications
     field: sender
+    schema:
+      is_indexed: true
+  - collection: directus_oauth_clients
+    field: date_created
+    schema:
+      is_indexed: true
+  - collection: directus_oauth_codes
+    field: client
+    schema:
+      is_indexed: true
+  - collection: directus_oauth_codes
+    field: expires_at
+    schema:
+      is_indexed: true
+  - collection: directus_oauth_codes
+    field: used_at
+    schema:
+      is_indexed: true
+  - collection: directus_oauth_codes
+    field: user
+    schema:
+      is_indexed: true
+  - collection: directus_oauth_consents
+    field: client
+    schema:
+      is_indexed: true
+  - collection: directus_oauth_tokens
+    field: code_hash
+    schema:
+      is_indexed: true
+  - collection: directus_oauth_tokens
+    field: expires_at
+    schema:
+      is_indexed: true
+  - collection: directus_oauth_tokens
+    field: previous_session
+    schema:
+      is_indexed: true
+  - collection: directus_oauth_tokens
+    field: session
+    schema:
+      is_indexed: true
+  - collection: directus_oauth_tokens
+    field: user
     schema:
       is_indexed: true
   - collection: directus_operations
@@ -831,6 +895,10 @@ systemFields:
     schema:
       is_indexed: true
   - collection: directus_sessions
+    field: oauth_client
+    schema:
+      is_indexed: true
+  - collection: directus_sessions
     field: share
     schema:
       is_indexed: true
@@ -888,10 +956,6 @@ systemFields:
       is_indexed: true
   - collection: directus_versions
     field: user_updated
-    schema:
-      is_indexed: true
-  - collection: directus_webhooks
-    field: migrated_flow
     schema:
       is_indexed: true
 relations:
